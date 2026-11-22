@@ -1,0 +1,6 @@
+# Image Files
+*.png
+
+# System specific files
+.DS_Store
+.vscode
