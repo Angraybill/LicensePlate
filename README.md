@@ -70,7 +70,7 @@ $ mv <movie> src
 
 ### Break video into frames
 ```bash
-$ ffmpeg -i src/<movie> frame-%04d.png
+$ ffmpeg -i src/<movie> src/frame-%04d.png
 ```
 ### Censor all the images
 ```bash
