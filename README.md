@@ -23,26 +23,28 @@ $ python3 draw.py <image>
 
 ### Save a new image with the license plate censored 
 ```bash
-$ python3 car_image_saver.py <source> <dest> [<color> | <blur distance>]
+$ python3 car_image_saver.py <source> <dest> {<color> | <blur distance>} [secret]
 ```  
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `source` | `string` | Path to the image you want censored |
 | `dest` | `string` | Name of new, censored image. If `dest` doesn't end with '.png' it will be added|
-| `<color> \| <blur_distance>` | (`int`,`int`,`int`) &nbsp;\|&nbsp;  `int` | Either an RGB color to cover the license plate or the inradius of the square used to blur |
+| `<r,g,b> \| <blur_distance>` | `int`,`int`,`int` &nbsp;\|&nbsp;  `int` | Either comma-separated RGB values or the inradius of the square used to blur |
+| `secret` | `literal` | Will not save any image that doesn't detect a plate |
 
 ### Save many images at once
 ```bash
-$ python3 car_image_saver.py <dir> <dest_path> <dest_name> [<color> | <blur distance>]
+$ python3 car_image_saver.py <dir> <dest_path> <dest_name> {<color> | <blur distance>} [secret]
 ```
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `source` | `string` | Path to the directory containing the images you want censored. Every visible file in the directory ending in '.png' will be processed|
 | `dest_path` | `string` | Path to the directory where you want all the new images to end up|
-| `dest_name` | `string` | Name for new images. Each one will be named dest_nameXXXX.png. If the directory has more than 10,000 images, the names may break the format
-| `<color> \| <blur_distance>` | (`int`,`int`,`int`) \| `int` | Either an RGB color to cover the license plate or the inradius of the square used to blur |
+| `dest_name` | `string` | Name for new images. Each one will be named dest_nameXXXX.png |
+| `<r,g,b> \| <blur_distance>` | `int`,`int`,`int` \| `int` | Either comma-separated RGB values or the inradius of the square used to blur |
+| `secret` | `literal` | Will not save any image that doesn't detect a plate |
 
 ## Tips
 - For a good blur, the inradius should be at least 30, which takes about 80 seconds to process per image
@@ -81,4 +83,3 @@ $ python3 car_image_saver.py src dest frame- [<color> | <blur distance>]
 ```bash
 $ ffmpeg -framerate 30 -pattern_type glob -i 'dest/frame-*.png' -c:v libx264 -pix_fmt yuv420p output.mp4
 ```
-- If your video is more than 10,000 frames (5 and a half minutes at 30 fps), the naming of each frame could be inconsistent and mess up the output

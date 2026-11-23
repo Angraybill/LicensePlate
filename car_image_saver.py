@@ -20,7 +20,7 @@ def blur(image_array, x1, y1, radius):
     ret = (min(color_tots[0] // div, 255), min(color_tots[1] // div, 255), min(color_tots[2] // div, 255))
     return ret
 
-def censor(src, dest, color):
+def censor(src, dest, color, secret):
     img_path = src
     image = Image.open(img_path).convert("RGB")
     image_array = np.array(image).tolist()
@@ -47,34 +47,60 @@ def censor(src, dest, color):
         for x1 in range(lrtb[0], lrtb[1]):
             for y1 in range(lrtb[2], lrtb[3]):
                 image_array[y1][x1] = blur(image_array, x1, y1, color) if isinstance(color, int) else color
+    if found or not secret:
+        image_array = np.array(image_array, dtype=np.uint8)
+        img_new = Image.fromarray(image_array)
+        img_new.save(dest + (".png" if not dest.endswith(".png") else ""))
 
-    image_array = np.array(image_array, dtype=np.uint8)
-    img_new = Image.fromarray(image_array)
-    img_new.save(dest + (".png" if not dest.endswith(".png") else ""))
+def usage():
+    print("usage:\nOne image: python3 car_image_saver.py <source> <dest> [<r,g,b> | <blur distance>]\nDirectory: $ python3 car_image_saver.py <dir> <dest_path> <dest_name> [<color> | <blur distance>]")
+    sys.exit()
+
+def valid_color(color):
+    legal = "0123456789,"
+    for c in color:
+        if c not in legal:
+            print(color)
+            return False
+    return True
+
+def color_prep(color):
+    # Prepare color parameter for both an RGB color and a blur
+    if not valid_color(color):
+        print("Please enter either comma-separated r,g,b values or an integer inradius")
+        usage()
+    if "," in color:
+        ret = color.split(",")
+        return (int(ret[0].strip()), int(ret[1].strip()), int(ret[2].strip()))
+    else:
+        return int(color)
+
 
 if __name__ == "__main__":
     # Determine if a directory has been passed as a parameter
-    num_args = len(sys.argv)
-    info = os.stat(sys.argv[1])
-    is_dir = stat.S_ISDIR(info.st_mode)
-
-    # Prepare color parameter for both an RGB color and a blur
-    color = sys.argv[-1]
-    if "," in color:
-        color = color.split(",")
-        color = (int(color[0].strip()), int(color[1].strip()), int(color[2].strip()))
-    else:
-        color = int(color)
-    print(color)
-
-    if not is_dir:
+    args = sys.argv
+    secret = False
+    if args[-1].lower() == "secret":
+        secret = True
+        args.pop(-1)
+    if len(sys.argv) == 4:
         # Single image
+        color = color_prep(sys.argv[3])
         if sys.argv[1].endswith(".png"):
-            censor(sys.argv[1], sys.argv[2], color)
-    else:
+            censor(sys.argv[1], sys.argv[2], color, secret)
+        else:
+            print("Please pass a valid .png file as your input")
+            usage()
+    elif len(sys.argv) == 5:
+        color = color_prep(sys.argv[4])
+        info = os.stat(sys.argv[1])
+        if not stat.S_ISDIR(info.st_mode):
+            print("For a directory, please pass the path to your source directory")
+            usage()
         # Directory
         images = os.listdir(sys.argv[1])
         images.sort()
+        magnitude = int(np.log10(len(images)) + 1) 
         dest_path = sys.argv[2]
         dest_name = sys.argv[3]
 
@@ -95,4 +121,9 @@ if __name__ == "__main__":
         for i in range(len(images)):
             if images[i][0] == "." or not images[i].endswith(".png"):
                 continue
-            censor(src_name + images[i], dest_path + dest_name + ("0" * (4 - len(str(i)))) + str(i) + ".png", color)
+            censor(src_name + images[i], dest_path + dest_name + ("0" * (magnitude - len(str(i)))) + str(i) + ".png", color, secret)
+    else:
+        usage()
+
+        
+        
