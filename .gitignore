@@ -1,5 +1,7 @@
-# Image Files
+# Image & video files
 *.png
+*.mp4
+*.MOV
 
 # System specific files
 .DS_Store
