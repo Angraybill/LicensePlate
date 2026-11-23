@@ -5,7 +5,7 @@ Trained YOLO model to detect and censor license plates
 ```bash
 $ pip install -r requirements.txt
 ```
-Or make a virutal environment
+Or make a virtual environment
 ```bash
 $ python3 -m venv .venv
 $ source .venv/bin/activate
